@@ -1,19 +1,22 @@
 const { VueLoaderPlugin } = require('vue-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const { HotModuleReplacementPlugin, IgnorePlugin, DefinePlugin } = require('webpack');
-const path = require("path")
+const { HotModuleReplacementPlugin, IgnorePlugin,DefinePlugin } = require('webpack');
+const { resolve } = require("path")
 
-VUE_APP_API_HOST = 'https://way.jd.com/jisuapi/' //接口地址
-VUE_APP_API_PREFIX = '/api' //接口地址
+let base_host = {
+  production: 'https://way.jd.com/jisuapi/', //接口地址 开发环境
+  development: 'https://way.jd.com/jisuapi/' //生产环境
+}
+
+let node_env = process.env.NODE_ENV === 'production' ? 'production' : 'development'
+VUE_APP_API_HOST = base_host[node_env]
 
 module.exports = {
   entry: './src/main.js',
-  resolve: {
-    alias: {
-      extensions: ['.js', '.vue'],
-      '@': path.resolve(__dirname, 'src')
-    }
+  output: {
+    path: resolve('dist'),
+    assetModuleFilename: 'images/[hash][ext][query]'
   },
   module: {
     rules: [
@@ -28,14 +31,7 @@ module.exports = {
       },
       {
         test: /\.(png|jpe?g|gif)$/,
-        loader: 'url-loader',
-        options: {
-          name: '[name].[contenthash:8].[ext]',
-          outputPath: 'imgs', // 打包的图片放在该文件下
-          publicPath: './imgs/', // 公共路径
-          esModule: false, 
-          limit: 8192
-        }
+        type: 'asset/resource',
       },
       {
         test: /\.scss$/,
@@ -66,31 +62,30 @@ module.exports = {
       },
       {
         test: /\.(eot|woff2?|ttf|svg)$/,
-        loader: 'url-loader',
-        options: {
-          name: '[name].[contenthash:8].[ext]',
-          outputPath: 'fonts',
-          publicPath: './fonts/',
-          limit: 4096
+        type: 'asset',
+        generator: {
+          filename: 'static/[hash][ext][query]'
         }
       }
     ]
   },
+  ignoreWarnings: [/Failed to parse source map/], //防止警告
   plugins: [
     new CleanWebpackPlugin(),
+    new DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'VUE_APP_API_HOST': JSON.stringify(VUE_APP_API_HOST)
+    }),
     new HtmlWebpackPlugin({
       template:'./public/index.html'
-    }),
-    new DefinePlugin({
-      PRODUCTION: JSON.stringify(true),
-      BROWSER_SUPPORTS_HTML5: true,
-      TWO: '1+1',
-      'typeof window': JSON.stringify('object'),
-      'VUE_APP_API_PREFIX': JSON.stringify(VUE_APP_API_PREFIX),
-      'VUE_APP_API_HOST': JSON.stringify(VUE_APP_API_HOST)
     }),
     new IgnorePlugin(/^\.\/locale$/, /moment$/),
     new HotModuleReplacementPlugin(),
     new VueLoaderPlugin(),
-  ]
+  ],
+  resolve: {
+    alias: {
+      '@': resolve('src')
+    }
+  }
 }
