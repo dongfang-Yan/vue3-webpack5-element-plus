@@ -8,9 +8,9 @@ const devConfig = {
       hot: true,
       proxy: {
         // 本地开发环境请求地址 VUE_APP_API_HOST
-        '/api': { 
+        '/api': {
           target: '',
-          changeOrigin:true, //target是域名的话，需要这个参数
+          changeOrigin: true, //target是域名的话，需要这个参数
           pathRewrite: { '^/api': '' },
           secure: false
         }

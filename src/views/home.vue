@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>内容一</div>
-    <img src="@/assets/imgs/1.jpg" alt="">
+    <!-- <img class="m-4" src="@/assets/imgs/1.jpg" alt=""> -->
   </div>
 </template>
 
@@ -20,7 +20,7 @@
     },
     mounted(){
       console.log(this.$store.state);
-      console.log(VUE_APP_API_HOST);
+      console.log('process.env.NODE_ENV');
       // this.fetch()
     }
   }

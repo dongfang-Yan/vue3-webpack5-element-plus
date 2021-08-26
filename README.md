@@ -1,5 +1,5 @@
-# webpack5-demo
-基于webpack5搭建的Vue开发和生产环境，目的在于熟悉webpack5以及优化开发和生产环境。
+# Webpack5-Demo
+基于Webpack5搭建的Vue3项目Demo，目的在于熟悉Webpack5的新配置以及改动。配置文件内都做了大量的注释用于解析。
 
 ## webpack5新改动
 1. 通过持久缓存提高构建性能
@@ -15,7 +15,7 @@
 
 预设(presets)的功能主要包括两个：
 1. 哪些新语法会被转换，比如@babel/preset-env是指已经纳入标准(ES6-ES10)的新语法都会被转换
- 
+
 2. 组件库按需配置
 ```javascript
 {
@@ -28,9 +28,8 @@
     ]
 }
 ```
-注意：为什么需要polyfill？@babel/preset-env只能转换语法，比如const、箭头函数等，无法转换新API，比如promise等，
-所有我们需要安装polyfill来处理新API；polyfill会直接global上挂载API，比如对于[].flat会直接挂载在
-Array.prototype上，会污染全局环境，不适合在库中使用
+注意：我们在项目里面做兼容都要装polyfill，为什么需要polyfill？@babel/preset-env只能转换语法，比如const、箭头函数等，无法转换新API，比如promise等，
+所以我们需要安装polyfill来处理新API；polyfill会直接global上挂载API，但是要注意，比如对于[].flat会直接挂载在Array.prototype上，会污染全局环境，不适合在库中使用
 
 ### 2. 模块加载（module）
 更新了资源文件的载入方法，再见file/url/raw -loader
@@ -40,16 +39,22 @@ Array.prototype上，会污染全局环境，不适合在库中使用
 ### 3. 插件（plugin）
 ```javascript
 // DefinePlugin 允许在 编译时 创建配置的全局常量，这在需要区分开发模式与生产模式进行不同的操作时，非常有用
+
+// esm-bundler的警告移除，这个vue的默认配置要进行改动，使它不再依赖原有的环境变量
 new DefinePlugin({
-  'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-  'VUE_APP_API_HOST': JSON.stringify(VUE_APP_API_HOST)
+  __VUE_OPTIONS_API__: false, // 启用/禁用选项 API 支持，默认值：true
+  __VUE_PROD_DEVTOOLS__: false
 })
-//能在文件中被访问
+
 ```
-警告：esm-bundler的构建似乎会出现警告，不知道是不是在构建时的配置不对，按提示去使用 definePlugin 配置后
+
 
 ### 解析（resolve）
 以往的__dirname本地路径查找在resolve方法配置alias已经不管用,resolve直接填写路径
+
+## 拓展
+
+### 如果需要对语法进行检索，建议安装eslint，个人学习的话要求不大，至于对比企业级别的项目，这仅仅是九牛一毛，可以在架构方面进行延伸，我们在这里只是做下学习用。
 
 ## 运行
 ### 生产环境
